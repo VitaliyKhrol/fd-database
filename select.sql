@@ -449,7 +449,7 @@ JOIN products AS p
 ON otp.product_id = p.id
 GROUP BY u.id
 ORDER BY total_sum DESC
-LIMIT 1;
+LIMIT 5;
 
 3.
 SELECT p.brand, sum(otp.quantity) AS amount
@@ -508,4 +508,92 @@ WHERE owc.total_amount > (SELECT avg(o_w_sum.order_sum)
     
 
 5. Витягти всіх юзерів, кількість замовлень яких вище середнього
+
+
+
 6. Витягти юзерів і кількість куплених ними моделей телефонів.
+
+SELECT u.id, u.first_name, count (otp.product_id)
+FROM users  AS u
+JOIN orders AS o
+ON u.id = o.customer_id
+JOIN orders_to_products AS otp
+ON o.id = otp.order_id
+GROUP BY u.id;
+
+
+
+ALTER TABLE orders
+ADD COLUMN status boolean;
+
+SELECT *, (
+  CASE
+  WHEN is_subscribe= TRUE
+      THEN 'Підписаний'
+  WHEN is_subscribe= FALSE
+      THEN 'Не підписаний'
+  ELSE 'Не відомий'
+  END
+)
+FROM users;
+
+
+SELECT *,(
+  CASE extract ('month' from birthday)
+    WHEN 1 THEN 'winter'
+    WHEN 2 THEN 'winter'
+    WHEN 3 THEN 'spring'
+    WHEN 4 THEN 'spring'
+    WHEN 5 THEN 'spring'
+    WHEN 6 THEN 'summer'
+    WHEN 7 THEN 'summer'
+    WHEN 8 THEN 'summer'
+    WHEN 9 THEN 'fall'
+    WHEN 10 THEN 'fall'
+    WHEN 11 THEN 'fall'
+    WHEN 12 THEN 'winter'
+    ELSE 'unknown'
+  END
+) AS "birth birthday"
+FROM users;
+
+SELECT *,(
+  CASE 
+    WHEN extract ('years' from age(birthday)) > 18 THEN 'Повнолітній'
+    WHEN extract ('years' from age(birthday)) < 18 THEN 'Не повнолітній'
+    ELSE 'невідомий'
+    END
+) FROM users;
+
+
+
+Вивести всі телефони, в стопці "manufacturer" вивести виробника - 
+якщо бренд - iPhone, то вивести Apple, для всіх інших - вивести "Other"
+
+SELECT * ,(
+  CASE 
+  WHEN brand = 'iPhone' THEN 'APPLE'
+  ELSE 'OTHER'
+  END
+) AS "MANUFACTURER"
+FROM products;
+
+Вивести всіх користувачів та їхній статус - якщо у користувача > 3 замовлення, то він постійний клієнт,
+якщо від 1 до 3 - то він активний клієнт
+якщо 0 - то він новий клієнт
+
+SELECT u.id,u.first_name,(
+  CASE WHEN count(o.id) > 3 THEN 'постійний'
+      WHEN count(o.id) > 1 AND count(o.id) <3 THEN 'активний'
+  ELSE 'новий'
+  END
+) 
+FROM users AS u
+JOIN orders AS o
+ON u.id = o.customer_id
+GROUP BY u.id ;
+
+
+
+SELECT *
+FROM users
