@@ -565,10 +565,8 @@ SELECT *,(
     END
 ) FROM users;
 
-
-
-Вивести всі телефони, в стопці "manufacturer" вивести виробника - 
-якщо бренд - iPhone, то вивести Apple, для всіх інших - вивести "Other"
+--Вивести всі телефони, в стопці "manufacturer" вивести виробника - 
+--якщо бренд - iPhone, то вивести Apple, для всіх інших - вивести "Other"
 
 SELECT * ,(
   CASE 
@@ -578,9 +576,9 @@ SELECT * ,(
 ) AS "MANUFACTURER"
 FROM products;
 
-Вивести всіх користувачів та їхній статус - якщо у користувача > 3 замовлення, то він постійний клієнт,
-якщо від 1 до 3 - то він активний клієнт
-якщо 0 - то він новий клієнт
+--Вивести всіх користувачів та їхній статус - якщо у користувача > 3 замовлення, то він постійний клієнт,
+--якщо від 1 до 3 - то він активний клієнт
+--якщо 0 - то він новий клієнт
 
 SELECT u.id,u.first_name,(
   CASE WHEN count(o.id) > 3 THEN 'постійний'
@@ -595,5 +593,78 @@ GROUP BY u.id ;
 
 
 
+SELECT id, brand, model, price, COALESCE (category, 'smartphone')
+FROM products;
+
+SELECT *, LEAST (price, 1000)
+FROM products;
+
+
 SELECT *
-FROM users
+FROM users AS u
+WHERE u.id IN (
+        SELECT o.customer_id
+        FROM orders AS o
+);
+
+
+SELECT *
+FROM users AS u
+WHERE u.id NOT IN (
+        SELECT o.customer_id
+        FROM orders AS o
+);
+
+
+--Знайти телефони, які ніколи не купували
+
+SELECT *
+FROM products AS p
+WHERE p.id NOT IN (
+        SELECT otp.product_id
+        FROM orders_to_products AS otp
+);
+
+SELECT EXISTS
+    (SELECT o.customer_id
+    FROM orders AS o
+    WHERE id = 293);
+
+SELECT u.id, u.email, (EXISTS
+                    (SELECT o.customer_id
+                    FROM orders AS o))
+FROM users AS u
+WHERE id = 293;
+
+
+SELECT *
+FROM products AS p
+WHERE p.id != ALL (
+          SELECT otp.product_id
+          FROM orders_to_products AS otp
+);
+
+
+CREATE VIEW orders_with_sum_model_count AS (
+  SELECT o.* , sum (p.price*otp.quantity), count (otp.product_id)
+  FROM orders AS o
+  JOIN orders_to_products AS otp
+  ON o.id = otp.order_id
+  JOIN products AS p
+  ON p.id = otp.product_id
+  GROUP BY o.id
+);
+
+SELECT u.* , sum (owsmc.sum)
+FROM users AS u
+JOIN orders_with_sum_model_count AS owsmc
+ON u.id = owsmc.customer_id
+GROUP BY u.id;
+
+
+SELECT *
+FROM 
+
+
+
+
