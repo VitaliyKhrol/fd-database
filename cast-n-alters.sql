@@ -48,6 +48,10 @@ INSERT INTO new_schema.tasks (user_id, body, is_done , deadline) VALUES
 ALTER TABLE new_schema.tasks
 ALTER COLUMN body TYPE varchar(500);
 
+-----------Кастомний тип даних---------
+
+/* is_done boolean ---> status ('new', 'done', 'processing', 'expired') */
+
 CREATE TYPE task_status
 AS ENUM ('new', 'done', 'processing', 'expired');
 
